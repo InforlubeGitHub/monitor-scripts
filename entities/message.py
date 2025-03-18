@@ -10,7 +10,7 @@ class Message:
         embed = {
             "title": "Erro em monitoramento",
             "description": "O site apresentou um erro durante o monitoramento.",
-            "color": 7506394,  # Hex color code converted to decimal
+            "color": 7506394,
             "footer": {
                 "text": "Created by Inforlube",
             },
@@ -27,9 +27,9 @@ class Message:
         }
 
         data = {
-            "username": "Bot Monitor",  # Optional: custom name for your webhook
-            "avatar_url": "https://images.icon-icons.com/2871/PNG/512/bot_robot_insect_icon_181890.png",  # Optional: custom avatar # Regular message content
-            "embeds": [embed],  # You can include multiple embeds in one message
+            "username": "Bot Monitor",
+            "avatar_url": "https://images.icon-icons.com/2871/PNG/512/bot_robot_insect_icon_181890.png",
+            "embeds": [embed],
         }
 
         return data
