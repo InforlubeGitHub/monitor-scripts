@@ -62,6 +62,8 @@ class Lubrax:
         if product_containers:
             print(f"Produtos identificados para o veículo {text_search}")
         else:
+            script_error = ScriptError("Lubrax", "Lista de produtos", "Sem itens retornados", text_search)
             print("No products found")
+            return script_error
 
         print("Finalizando busca no script Lubrax para o texto: ", text_search)
