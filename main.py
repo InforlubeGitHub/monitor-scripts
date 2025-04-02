@@ -5,6 +5,9 @@ from notification.discord import Discord
 from scripts.Lubrax import Lubrax
 from selenium.webdriver.chrome.options import Options
 
+from scripts.TotalEnergies import TotalEnergies
+
+
 def main():
     discord_instance = Discord(
         "https://discordapp.com/api/webhooks/1351560228147167262/zhmZJacoissnC_ux-WuLHqfg8DrnS9Q8yxDnyBKAJJKkhiOrSFH_NQwIFQ-6MkqWB-kI")
@@ -24,21 +27,25 @@ def main():
 
     errors = []
 
-    errors += run_lubrax_script(driver)
-
-    for error in errors:
-        message = Message(error)
-        discord_instance.send(message)
-
-    driver.close()
-
-def run_lubrax_script(driver):
-    lubrax = Lubrax(driver)
     scenarios = [
         "Renault Duster 2020 2.0",
         "Renault Fluence 2017",
         "Honda Civic 2018 2.0"
     ]
+
+    errors += run_lubrax_script(driver, scenarios)
+    errors += run_total_energies_script(driver, scenarios)
+
+    for error in errors:
+        message = Message(error)
+        discord_instance.send(message)
+
+
+    driver.close()
+
+def run_lubrax_script(driver, scenarios):
+    print("Iniciando busca no script Lubrax")
+    lubrax = Lubrax(driver)
 
     errors = []
 
@@ -48,6 +55,20 @@ def run_lubrax_script(driver):
         error = lubrax.run(scenario, first_run)
 
         first_run = False
+
+        if error:
+            errors.append(error)
+
+    return errors
+
+def run_total_energies_script(driver, scenarios):
+    print("Iniciando busca no script TotalEnergies")
+    total_energies = TotalEnergies(driver)
+
+    errors = []
+
+    for scenario in scenarios:
+        error = total_energies.run(scenario)
 
         if error:
             errors.append(error)
