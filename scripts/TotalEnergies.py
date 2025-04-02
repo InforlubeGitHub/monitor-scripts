@@ -38,7 +38,6 @@ class TotalEnergies:
             WebDriverWait(self.driver, 10).until(
                 EC.presence_of_element_located((By.ID, "LiteralSearchList"))
             )
-            print("Search results loaded successfully")
         except TimeoutException:
             script_error = ScriptError("TotalEnergies", "Lista de resultados de carros", "TimeoutException", text_search)
             print(script_error)
@@ -47,11 +46,8 @@ class TotalEnergies:
         time.sleep(0.5)
 
         first_result = self.driver.find_element(By.CSS_SELECTOR, ".search-literal-list-item")
-        print(f"Found first result: {first_result.get_attribute('data-display')}")
 
         actions.move_to_element(first_result).pause(random.uniform(0.3, 0.7)).click().perform()
-
-        print("Clicked on the first search result")
 
         search_button = self.driver.find_element(By.ID, "LiteralSearchFind")
 
@@ -61,7 +57,6 @@ class TotalEnergies:
             WebDriverWait(self.driver, 10).until(
                 EC.presence_of_element_located((By.ID, "Catalog"))
             )
-            print("Catalog loaded successfully")
         except TimeoutException:
             script_error = ScriptError("TotalEnergies", "Catalog", "TimeoutException", text_search)
             print(script_error)
