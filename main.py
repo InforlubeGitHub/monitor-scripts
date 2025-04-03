@@ -3,6 +3,7 @@ from selenium import webdriver
 from entities.message import Message
 from notification.discord import Discord
 from scripts.Lubrax import Lubrax
+from scripts.Castrol import Castrol
 from selenium.webdriver.chrome.options import Options
 
 from scripts.TotalEnergies import TotalEnergies
@@ -14,9 +15,9 @@ def main():
 
     chrome_options = Options()
 
-    chrome_options.add_argument("--headless=new")
-    chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--window-size=1920,1080")
+    #chrome_options.add_argument("--headless=new")
+    #chrome_options.add_argument("--disable-gpu")
+    #chrome_options.add_argument("--window-size=1920,1080")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
@@ -30,15 +31,16 @@ def main():
     scenarios = [
         "Renault Duster 2020 2.0",
         "Renault Fluence 2017",
-        "Honda Civic 2018 2.0"
+#        "Honda Civic 2018 2.0"
     ]
 
-    errors += run_lubrax_script(driver, scenarios)
-    errors += run_total_energies_script(driver, scenarios)
+    #errors += run_lubrax_script(driver, scenarios)
+    #errors += run_total_energies_script(driver, scenarios)
+    errors += run_castrol_script(driver, scenarios)
 
     for error in errors:
         message = Message(error)
-        discord_instance.send(message)
+        #discord_instance.send(message)
 
 
     driver.close()
@@ -72,6 +74,24 @@ def run_total_energies_script(driver, scenarios):
 
         if error:
             errors.append(error)
+
+    return errors
+
+def run_castrol_script(driver, scenarios):
+    print("Iniciando busca no script Castrol")
+    castrol = Castrol(driver)
+
+    errors = []
+
+    first_run = True
+
+    for scenario in scenarios:
+        error = castrol.run(scenario, first_run)
+
+        if error:
+            errors.append(error)
+
+        first_run = False
 
     return errors
 
