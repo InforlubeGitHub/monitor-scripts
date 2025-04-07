@@ -1,7 +1,11 @@
+import schedule
+import time
+
 from selenium import webdriver
 
 from entities.message import Message
 from notification.discord import Discord
+from scripts.Lubel import Lubel
 from scripts.Lubrax import Lubrax
 from scripts.Castrol import Castrol
 from selenium.webdriver.chrome.options import Options
@@ -10,14 +14,21 @@ from scripts.TotalEnergies import TotalEnergies
 
 
 def main():
+    schedule.every(20).minutes.do(run_scripts)
+
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+
+def run_scripts():
     discord_instance = Discord(
         "https://discordapp.com/api/webhooks/1351560228147167262/zhmZJacoissnC_ux-WuLHqfg8DrnS9Q8yxDnyBKAJJKkhiOrSFH_NQwIFQ-6MkqWB-kI")
 
     chrome_options = Options()
 
-    #chrome_options.add_argument("--headless=new")
-    #chrome_options.add_argument("--disable-gpu")
-    #chrome_options.add_argument("--window-size=1920,1080")
+    chrome_options.add_argument("--headless=new")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--window-size=1920,1080")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
@@ -31,16 +42,17 @@ def main():
     scenarios = [
         "Renault Duster 2020 2.0",
         "Renault Fluence 2017",
-#        "Honda Civic 2018 2.0"
+        "Honda Civic 2018 2.0"
     ]
 
-    #errors += run_lubrax_script(driver, scenarios)
-    #errors += run_total_energies_script(driver, scenarios)
+    errors += run_lubrax_script(driver, scenarios)
+    errors += run_total_energies_script(driver, scenarios)
     errors += run_castrol_script(driver, scenarios)
+    errors += run_lubel_script(driver)
 
     for error in errors:
         message = Message(error)
-        #discord_instance.send(message)
+        discord_instance.send(message)
 
 
     driver.close()
@@ -94,6 +106,20 @@ def run_castrol_script(driver, scenarios):
         first_run = False
 
     return errors
+
+def run_lubel_script(driver):
+    lubel = Lubel(driver)
+
+    errors = []
+
+    error = lubel.run()
+
+    if error:
+        errors.append(error)
+
+    return errors
+
+
 
 if __name__ == '__main__':
     main()
