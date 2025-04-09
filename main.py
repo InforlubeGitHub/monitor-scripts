@@ -5,6 +5,7 @@ import time
 
 from selenium import webdriver
 
+from entities.error import ScriptError
 from entities.message import Message
 from notification.discord import Discord
 from scripts.Lubel import Lubel
@@ -53,10 +54,35 @@ def run_scripts():
         "Honda Civic 2018 2.0"
     ]
 
-    errors += run_lubrax_script(driver, scenarios)
-    errors += run_total_energies_script(driver, scenarios)
-    errors += run_castrol_script(driver, scenarios)
-    errors += run_lubel_script(driver)
+    try:
+        errors += run_lubrax_script(driver, scenarios)
+    except Exception as e:
+        error = ScriptError("TotalEnergies", "Desconhecido", f"Exception não identificada. Detalhes: {e}", "")
+        print(f"Erro durante o monitoramento do Lubrax. Detalhes: {e}")
+        errors.append(error)
+
+
+    try:
+        errors += run_total_energies_script(driver, scenarios)
+    except Exception as e:
+        error = ScriptError("TotalEnergies", "Desconhecido", f"Exception não identificada. Detalhes: {e}", "")
+        print(f"Erro durante o monitoramento do TotalEnergies. Detalhes: {e}")
+        errors.append(error)
+
+    try:
+        errors += run_castrol_script(driver, scenarios)
+    except Exception as e:
+        error = ScriptError("Castrol", "Desconhecido", f"Exception não identificada. Detalhes: {e}", "")
+        print(f"Erro durante o monitoramento do Castrol. Detalhes: {e}")
+        errors.append(error)
+
+    try:
+        errors += run_lubel_script(driver)
+    except Exception as e:
+        error = ScriptError("Lubel", "Desconhecido", f"Exception não identificada. Detalhes: {e}", "")
+        print("Erro durante o monitoramento do Lubel. Detalhes: {e}")
+        errors.append(error)
+
 
     for error in errors:
         message = Message(error)
