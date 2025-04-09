@@ -36,3 +36,5 @@ class Lubel:
 
         time.sleep(3)
 
+        print("Script para Lubel finalizada com sucesso")
+

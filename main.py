@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import schedule
 import time
 
@@ -14,13 +16,19 @@ from scripts.TotalEnergies import TotalEnergies
 
 
 def main():
-    schedule.every(20).minutes.do(run_scripts)
+    print("Iniciando monitoramento...")
+    schedule.every(10).minutes.do(run_scripts)
+
+    run_scripts()
 
     while True:
         schedule.run_pending()
         time.sleep(1)
 
 def run_scripts():
+    now = datetime.now()
+    print(f"Rodando monitoramento as {now}")
+
     discord_instance = Discord(
         "https://discordapp.com/api/webhooks/1351560228147167262/zhmZJacoissnC_ux-WuLHqfg8DrnS9Q8yxDnyBKAJJKkhiOrSFH_NQwIFQ-6MkqWB-kI")
 
@@ -56,6 +64,8 @@ def run_scripts():
 
 
     driver.close()
+
+    print("Monitoramento finalizado com sucesso")
 
 def run_lubrax_script(driver, scenarios):
     print("Iniciando busca no script Lubrax")
@@ -118,7 +128,6 @@ def run_lubel_script(driver):
         errors.append(error)
 
     return errors
-
 
 
 if __name__ == '__main__':
