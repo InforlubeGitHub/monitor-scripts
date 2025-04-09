@@ -80,7 +80,7 @@ def run_scripts():
         errors += run_lubel_script(driver)
     except Exception as e:
         error = ScriptError("Lubel", "Desconhecido", f"Exception não identificada. Detalhes: {e}", "")
-        print("Erro durante o monitoramento do Lubel. Detalhes: {e}")
+        print(f"Erro durante o monitoramento do Lubel. Detalhes: {e}")
         errors.append(error)
 
 
