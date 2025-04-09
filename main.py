@@ -86,7 +86,11 @@ def run_scripts():
 
     for error in errors:
         message = Message(error)
-        discord_instance.send(message)
+
+        try:
+            discord_instance.send(message)
+        except Exception as e:
+            print(f"Erro ao enviar notificação ao Discord. Detalhes: {e}")
 
 
     driver.close()
