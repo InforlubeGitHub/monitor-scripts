@@ -68,7 +68,7 @@ def run_scripts():
     try:
         errors += run_lubrax_script(driver, scenarios)
     except Exception as e:
-        error = ScriptError("TotalEnergies", "Desconhecido", f"Exception não identificada. Detalhes: {e}", "")
+        error = ScriptError("Lubrax", "Desconhecido", f"Exception não identificada. Detalhes: {e}", "")
         print(f"Erro durante o monitoramento do Lubrax. Detalhes: {e}")
         errors.append(error)
 
