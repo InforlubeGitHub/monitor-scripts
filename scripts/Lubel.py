@@ -16,7 +16,7 @@ class Lubel:
         self.driver.get("https://www.moura.com.br/produtos/lubel")
 
         try:
-            WebDriverWait(self.driver, 10).until(
+            WebDriverWait(self.driver, 90).until(
                 EC.presence_of_element_located((By.CLASS_NAME, "cc-message-container")))
             consent_button = self.driver.find_element(By.XPATH, "/html/body/div[2]/div[2]/a[2]")
 

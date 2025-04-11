@@ -17,7 +17,7 @@ class TotalEnergies:
         print("Iniciando busca no script TotalEnergies para o texto: ", text_search)
         self.driver.get("https://lubconsult.dafitech.com/")
 
-        WebDriverWait(self.driver, 15).until(
+        WebDriverWait(self.driver, 90).until(
             EC.presence_of_element_located((By.ID, "LiteralSearchInput")))
 
         search_input = self.driver.find_element(By.ID, "LiteralSearchInput")
@@ -54,7 +54,7 @@ class TotalEnergies:
         actions.move_to_element(search_button).pause(random.uniform(0.3, 0.7)).click().perform()
 
         try:
-            WebDriverWait(self.driver, 10).until(
+            WebDriverWait(self.driver, 90).until(
                 EC.presence_of_element_located((By.ID, "Catalog"))
             )
         except TimeoutException:

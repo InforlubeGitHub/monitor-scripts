@@ -17,7 +17,7 @@ class Castrol:
 
         if first_run:
             try:
-                WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.ID, "cookie-consent")))
+                WebDriverWait(self.driver, 90).until(EC.visibility_of_element_located((By.ID, "cookie-consent")))
                 consent_button = self.driver.find_element(By.XPATH, "/html/body/div[9]/div/div/div/div/div/div[2]/div/div[2]/div[2]/div[2]/button")
                 consent_button.click()
 
@@ -31,11 +31,11 @@ class Castrol:
                 return script_error
 
         try:
-            WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, "/html/body/div[5]/div/div/div/div/div/div[2]/div/div[2]/div")))
+            WebDriverWait(self.driver, 90).until(EC.visibility_of_element_located((By.XPATH, "/html/body/div[5]/div/div/div/div/div/div[2]/div/div[2]/div")))
             oil_search = self.driver.find_element(By.XPATH, "/html/body/div[5]/div/div/div/div/div/div[2]/div/div[2]/div/div/div[1]/input")
             oil_search.send_keys(text_search)
 
-            first_option = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.XPATH, "/html/body/div[5]/div/div/div/div/div/div[2]/div/div[2]/div/div/div[2]/div[1]/button")))
+            first_option = WebDriverWait(self.driver, 90).until(EC.visibility_of_element_located((By.XPATH, "/html/body/div[5]/div/div/div/div/div/div[2]/div/div[2]/div/div/div[2]/div[1]/button")))
             first_option.click()
 
             search_button = self.driver.find_element(By.XPATH, "/html/body/div[5]/div/div/div/div/div/div[2]/div/div[2]/div/div/div/button[1]")
@@ -48,7 +48,7 @@ class Castrol:
             return script_error
 
         try:
-            WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.CLASS_NAME, "mantine-Carousel-root")))
+            WebDriverWait(self.driver, 90).until(EC.visibility_of_element_located((By.CLASS_NAME, "mantine-Carousel-root")))
             result_list = self.driver.find_elements(By.XPATH, "/html/body/div[5]/div/div/div/div/div/div[2]/div/div[2]/div")
 
             if not result_list:

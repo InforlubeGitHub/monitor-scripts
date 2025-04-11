@@ -16,7 +16,7 @@ class Lubrax:
 
         if first_run:
             try:
-                WebDriverWait(self.driver, 10).until(
+                WebDriverWait(self.driver, 90).until(
                     EC.presence_of_element_located((By.ID, "onetrust-accept-btn-handler")))
                 consent_button = self.driver.find_element(By.ID, "onetrust-accept-btn-handler")
 
@@ -27,7 +27,7 @@ class Lubrax:
                 return script_error
 
         try:
-            WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.ID, "input-search")))
+            WebDriverWait(self.driver, 90).until(EC.visibility_of_element_located((By.ID, "input-search")))
             oil_search = self.driver.find_element(By.ID, "input-search")
             oil_search.send_keys(text_search)
         except TimeoutException:
@@ -36,7 +36,7 @@ class Lubrax:
             return script_error
 
         try:
-            WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.ID, "scrollableDiv")))
+            WebDriverWait(self.driver, 90).until(EC.visibility_of_element_located((By.ID, "scrollableDiv")))
 
             result_list = self.driver.find_elements(By.XPATH,
                                                     "//div[@id='scrollableDiv']//div[contains(@class, 'infinite-scroll-component')]/div")
@@ -54,7 +54,7 @@ class Lubrax:
             print(script_error)
             return script_error
 
-        WebDriverWait(self.driver, 10).until(
+        WebDriverWait(self.driver, 90).until(
             EC.visibility_of_element_located((By.XPATH, "//div[contains(@class, 'sc-cCcYRi')]/div")))
 
         product_containers = self.driver.find_elements(By.XPATH, "//div[contains(@class, 'sc-cCcYRi')]/div")
