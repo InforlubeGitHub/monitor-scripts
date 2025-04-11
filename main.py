@@ -11,7 +11,7 @@ from notification.discord import Discord
 from scripts.Lubel import Lubel
 from scripts.Lubrax import Lubrax
 from scripts.Castrol import Castrol
-from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.firefox.options import Options
 
 from scripts.TotalEnergies import TotalEnergies
 
@@ -33,18 +33,29 @@ def run_scripts():
     discord_instance = Discord(
         "https://discordapp.com/api/webhooks/1351560228147167262/zhmZJacoissnC_ux-WuLHqfg8DrnS9Q8yxDnyBKAJJKkhiOrSFH_NQwIFQ-6MkqWB-kI")
 
-    chrome_options = Options()
+    options = Options()
 
-    chrome_options.add_argument("--headless=new")
+    '''chrome_options.add_argument("--headless=new")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--window-size=1920,1080")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
     chrome_options.add_argument(
-        "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+        "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")'''
 
-    driver = webdriver.Chrome(options=chrome_options)
+    options.add_argument("--disable-notifications")
+    options.add_argument("--headless")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--window-size=1920,1080")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-blink-features=AutomationControlled")
+    options.add_argument("--disable-popup-content")
+    options.add_argument("--disable-popup-blocking")
+    options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+
+    driver = webdriver.Firefox(options=options)
 
     errors = []
 
