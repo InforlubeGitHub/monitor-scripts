@@ -12,6 +12,7 @@ from entities.error import ScriptError
 class TotalEnergies:
     def __init__(self, driver):
         self.driver = driver
+        self.retries = 10
 
     def run(self, text_search: str):
         print("Iniciando busca no script TotalEnergies para o texto: ", text_search)
