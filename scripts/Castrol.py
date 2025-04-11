@@ -10,53 +10,83 @@ from entities.error import ScriptError
 class Castrol:
     def __init__(self, driver):
         self.driver = driver
+        self.max_retry = 10
 
     def run(self, text_search: str, first_run: bool):
         print("Iniciando busca no script Castrol para o texto: ", text_search)
         self.driver.get("https://www.castrol.com/pt_br/brazil/home/product-finder.html#/oil-selector")
 
         if first_run:
+            for attempt in range(self.max_retry):
+                try:
+                    WebDriverWait(self.driver, 90).until(EC.visibility_of_element_located((By.ID, "cookie-consent")))
+                    consent_button = self.driver.find_element(By.XPATH,
+                                                              "/html/body/div[9]/div/div/div/div/div/div[2]/div/div[2]/div[2]/div[2]/button")
+                    consent_button.click()
+
+                    cookie_button = self.driver.find_element(By.XPATH, "/html/body/div[4]/div/div/div[2]/button")
+                    cookie_button.click()
+
+                    time.sleep(2)
+
+                    return None
+                except TimeoutException:
+                    if attempt < self.max_retry:
+                        script_error = ScriptError("Castrol", "Campo de busca", "TimeoutException", text_search)
+                        print(script_error)
+                        return script_error
+                    else:
+                        self.max_retry -= 1
+
+        self.max_retry = 10
+
+        for attempt in range(self.max_retry):
             try:
-                WebDriverWait(self.driver, 90).until(EC.visibility_of_element_located((By.ID, "cookie-consent")))
-                consent_button = self.driver.find_element(By.XPATH, "/html/body/div[9]/div/div/div/div/div/div[2]/div/div[2]/div[2]/div[2]/button")
-                consent_button.click()
+                WebDriverWait(self.driver, 90).until(EC.visibility_of_element_located(
+                    (By.XPATH, "/html/body/div[5]/div/div/div/div/div/div[2]/div/div[2]/div")))
+                oil_search = self.driver.find_element(By.XPATH,
+                                                      "/html/body/div[5]/div/div/div/div/div/div[2]/div/div[2]/div/div/div[1]/input")
+                oil_search.send_keys(text_search)
 
-                cookie_button = self.driver.find_element(By.XPATH, "/html/body/div[4]/div/div/div[2]/button")
-                cookie_button.click()
+                first_option = WebDriverWait(self.driver, 90).until(EC.visibility_of_element_located(
+                    (By.XPATH, "/html/body/div[5]/div/div/div/div/div/div[2]/div/div[2]/div/div/div[2]/div[1]/button")))
+                first_option.click()
 
-                time.sleep(2)
+                search_button = self.driver.find_element(By.XPATH,
+                                                         "/html/body/div[5]/div/div/div/div/div/div[2]/div/div[2]/div/div/div/button[1]")
+                search_button.click()
+
+                time.sleep(3)
+
+                return None
             except TimeoutException:
-                script_error = ScriptError("Castrol", "Campo de busca", "TimeoutException", text_search)
-                print(script_error)
-                return script_error
+                if attempt < self.max_retry:
+                    script_error = ScriptError("Castrol", "Campo de busca", "TimeoutException", text_search)
+                    print(script_error)
+                    return script_error
+                else:
+                    self.max_retry -= 1
 
-        try:
-            WebDriverWait(self.driver, 90).until(EC.visibility_of_element_located((By.XPATH, "/html/body/div[5]/div/div/div/div/div/div[2]/div/div[2]/div")))
-            oil_search = self.driver.find_element(By.XPATH, "/html/body/div[5]/div/div/div/div/div/div[2]/div/div[2]/div/div/div[1]/input")
-            oil_search.send_keys(text_search)
+        self.max_retry = 10
 
-            first_option = WebDriverWait(self.driver, 90).until(EC.visibility_of_element_located((By.XPATH, "/html/body/div[5]/div/div/div/div/div/div[2]/div/div[2]/div/div/div[2]/div[1]/button")))
-            first_option.click()
+        for attempt in range(self.max_retry):
+            try:
+                WebDriverWait(self.driver, 90).until(
+                    EC.visibility_of_element_located((By.CLASS_NAME, "mantine-Carousel-root")))
+                result_list = self.driver.find_elements(By.XPATH,
+                                                        "/html/body/div[5]/div/div/div/div/div/div[2]/div/div[2]/div")
 
-            search_button = self.driver.find_element(By.XPATH, "/html/body/div[5]/div/div/div/div/div/div[2]/div/div[2]/div/div/div/button[1]")
-            search_button.click()
+                if not result_list:
+                    script_error = ScriptError("Castrol", "Lista de óleos", "Sem itens retornados", text_search)
+                    print(script_error)
+                    return script_error
 
-            time.sleep(3)
-        except TimeoutException:
-            script_error = ScriptError("Castrol", "Campo de busca", "TimeoutException", text_search)
-            print(script_error)
-            return script_error
+                return None
 
-        try:
-            WebDriverWait(self.driver, 90).until(EC.visibility_of_element_located((By.CLASS_NAME, "mantine-Carousel-root")))
-            result_list = self.driver.find_elements(By.XPATH, "/html/body/div[5]/div/div/div/div/div/div[2]/div/div[2]/div")
-
-            if not result_list:
-                script_error = ScriptError("Castrol", "Lista de óleos", "Sem itens retornados", text_search)
-                print(script_error)
-                return script_error
-
-        except TimeoutException:
-            script_error = ScriptError("Castrol", "Lista de óleos", "TimeoutException", text_search)
-            print(script_error)
-            return script_error
+            except TimeoutException:
+                if attempt < self.max_retry:
+                    script_error = ScriptError("Castrol", "Lista de óleos", "TimeoutException", text_search)
+                    print(script_error)
+                    return script_error
+                else:
+                    self.max_retry -= 1
