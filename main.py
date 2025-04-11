@@ -18,13 +18,14 @@ from scripts.TotalEnergies import TotalEnergies
 
 def main():
     print("Iniciando monitoramento...")
-    schedule.every(30).minutes.do(run_scripts)
+    schedule.every(2).minutes.do(run_scripts)
 
     run_scripts()
 
     while True:
         schedule.run_pending()
         time.sleep(1)
+
 
 def run_scripts():
     now = datetime.now()
@@ -53,7 +54,8 @@ def run_scripts():
     options.add_argument("--disable-blink-features=AutomationControlled")
     options.add_argument("--disable-popup-content")
     options.add_argument("--disable-popup-blocking")
-    options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+    options.add_argument(
+        "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
 
     driver = webdriver.Firefox(options=options)
 
@@ -71,7 +73,6 @@ def run_scripts():
         error = ScriptError("Lubrax", "Desconhecido", f"Exception não identificada. Detalhes: {e}", "")
         print(f"Erro durante o monitoramento do Lubrax. Detalhes: {e}")
         errors.append(error)
-
 
     try:
         errors += run_total_energies_script(driver, scenarios)
@@ -94,7 +95,6 @@ def run_scripts():
         print(f"Erro durante o monitoramento do Lubel. Detalhes: {e}")
         errors.append(error)
 
-
     for error in errors:
         message = Message(error)
 
@@ -103,10 +103,10 @@ def run_scripts():
         except Exception as e:
             print(f"Erro ao enviar notificação ao Discord. Detalhes: {e}")
 
-
-    driver.close()
+    driver.quit()
 
     print("Monitoramento finalizado com sucesso")
+
 
 def run_lubrax_script(driver, scenarios):
     print("Iniciando busca no script Lubrax")
@@ -126,6 +126,7 @@ def run_lubrax_script(driver, scenarios):
 
     return errors
 
+
 def run_total_energies_script(driver, scenarios):
     print("Iniciando busca no script TotalEnergies")
     total_energies = TotalEnergies(driver)
@@ -139,6 +140,7 @@ def run_total_energies_script(driver, scenarios):
             errors.append(error)
 
     return errors
+
 
 def run_castrol_script(driver, scenarios):
     print("Iniciando busca no script Castrol")
@@ -158,6 +160,7 @@ def run_castrol_script(driver, scenarios):
 
     return errors
 
+
 def run_lubel_script(driver):
     lubel = Lubel(driver)
 
@@ -173,4 +176,3 @@ def run_lubel_script(driver):
 
 if __name__ == '__main__':
     main()
-
