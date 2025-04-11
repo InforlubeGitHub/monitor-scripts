@@ -17,7 +17,7 @@ class Lubrax:
         if first_run:
             try:
                 WebDriverWait(self.driver, 90).until(
-                    EC.presence_of_element_located((By.ID, "onetrust-accept-btn-handler")))
+                    EC.element_to_be_clickable((By.ID, "onetrust-accept-btn-handler")))
                 consent_button = self.driver.find_element(By.ID, "onetrust-accept-btn-handler")
 
                 consent_button.click()
