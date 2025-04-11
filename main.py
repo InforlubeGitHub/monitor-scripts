@@ -18,7 +18,7 @@ from scripts.TotalEnergies import TotalEnergies
 
 def main():
     print("Iniciando monitoramento...")
-    schedule.every(10).minutes.do(run_scripts)
+    schedule.every(30).minutes.do(run_scripts)
 
     run_scripts()
 
