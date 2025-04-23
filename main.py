@@ -32,18 +32,9 @@ def run_scripts():
     print(f"Rodando monitoramento as {now}")
 
     discord_instance = Discord(
-        "https://discordapp.com/api/webhooks/1351560228147167262/zhmZJacoissnC_ux-WuLHqfg8DrnS9Q8yxDnyBKAJJKkhiOrSFH_NQwIFQ-6MkqWB-kI")
+        "https://discordapp.com/api/webhooks/1364673256631566510/V1RQwnSwAlyeZoKVn2YPW8kwII4ZlaeZRUHKexvFERn3-035lCOYM6mVqBstz5W6kDPX")
 
     options = Options()
-
-    '''chrome_options.add_argument("--headless=new")
-    chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--window-size=1920,1080")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-    chrome_options.add_argument(
-        "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")'''
 
     options.add_argument("--disable-notifications")
     options.add_argument("--headless")
