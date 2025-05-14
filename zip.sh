@@ -40,7 +40,7 @@ done
 echo "Creating zip archive '$OUTPUT_ZIP' from current directory (excluding venv)..."
 
 # Use direct exclusion patterns with the zip command instead of a file
-zip -r "$OUTPUT_ZIP" . -x ".venv/*" ".venv/" "__pycache__/*" ".git/*" "./**/__pycache__/*" "./**/__pycache__" ".idea" ".idea/*" ".gitignore" "zip.sh" "setup.sh" "$OUTPUT_ZIP"
+zip -r "$OUTPUT_ZIP" . -x ".venv/*" ".venv/" "__pycache__/*" ".git/*" "./**/__pycache__/*" "./**/__pycache__" ".idea" ".idea/*" ".gitignore" "zip.sh" "setup.sh" ".env" "$OUTPUT_ZIP"
 
 # Check if zip command was successful
 if [ $? -eq 0 ]; then
