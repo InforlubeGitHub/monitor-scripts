@@ -1,4 +1,4 @@
-class ScriptError:
+class ScriptError (BaseException):
     def __init__(self, site: str, element: str, message: str, string_search: str):
         self.site = site
         self.element = element
