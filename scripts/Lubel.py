@@ -1,60 +1,121 @@
-import time
-
-from selenium.common import TimeoutException
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+import requests
 
 from entities.error import ScriptError
 
 class Lubel:
-    def __init__(self, driver):
-        self.driver = driver
+    def __init__(self, api_key):
         self.retries = 10
+        self.api_key = api_key
+        self.auth = None
 
-    def run(self):
-        print("Iniciando busca no script Lubel")
-        self.driver.get("https://www.moura.com.br/produtos/lubel")
+    def run(self, vehicle: str) -> None:
+        print("Iniciando busca no script Lubel para o veículo: ", vehicle)
 
-        for attempt in range(self.retries):
-            try:
-                WebDriverWait(self.driver, 90).until(
-                    EC.presence_of_element_located((By.CLASS_NAME, "cc-message-container")))
-                consent_button = self.driver.find_element(By.XPATH, "/html/body/div[2]/div[2]/a[2]")
+        try:
+            self.login()
+            ticket, model = self.search_model(vehicle)
+            self.search_products(ticket, model)
+        except ScriptError as e:
+            raise e
 
-                consent_button.click()
-                return None
-            except TimeoutException:
-                if attempt < self.retries:
-                    script_error = ScriptError("Lubel", "Cookie Dialog", "TimeoutException", "")
-                    print(script_error)
-                    return script_error
-                else:
-                    self.retries -= 1
 
-        self.retries = 10
+    def login(self) -> None:
+        try:
+            response = requests.get(
+                "https://api.dafitech.com/api/v2/Auth",
+                headers={
+                    "accept": "application/problem+json",
+                    "credentials": f"{self.api_key}",
+                }
+            )
 
-        for attempt in range(self.retries):
-            try:
-                know_oils_button = self.driver.find_element(By.CLASS_NAME, "chakra-button")
+            response.raise_for_status()
 
-                know_oils_button.click()
+            response_body = response.json()
 
-                catalog_pdf_button = self.driver.find_element(By.CLASS_NAME, "css-z8c6fa")
+            self.auth = response_body["Jwt"]
+            return None
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 401:
+                script_error = ScriptError("Lubel", "Login", "Unauthorized", "")
+                print(script_error)
+                raise script_error
+            else:
+                script_error = ScriptError("Lubel", "Login", f"{e.__str__()}", "")
+                print(script_error)
+                raise script_error
+        except Exception as e:
+            script_error = ScriptError("Lubel", "Login", f"{e.__str__()}", "")
+            print(script_error)
+            raise script_error
 
-                catalog_pdf_button.click()
+    def search_model(self, vehicle: str) -> tuple[str, str] | None:
+        try:
+            response = requests.get(
+                f"https://api.dafitech.com/api/v2/Models?UsePartialWords=true&SpellCheck=true&SearchText={vehicle}&PageSize=10&CurrentPage=1&IsPaged=true",
+                headers={
+                    "accept": "application/problem+json",
+                    "authorization": f"Bearer {self.auth}",
+                },
+                params={
+                    "search": vehicle
+                }
+            )
 
-                time.sleep(3)
+            response.raise_for_status()
 
-                print("Script para Lubel finalizada com sucesso")
+            response_body = response.json()
 
-                return None
+            headers = response.headers
 
-            except Exception as e:
-                if attempt < self.retries:
-                    script_error = ScriptError("Lubel", "Catalog PDF", f"Exception não identificada. Detalhes: {e}", "")
-                    print(script_error)
-                    return script_error
-                else:
-                    self.retries -= 1
+            ticket = headers["ticket"]
+            model_id = response_body[0]["Id"]
 
+            return ticket, model_id
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 401:
+                script_error = ScriptError("Lubel", "Search", "Unauthorized", vehicle)
+                print(script_error)
+                raise script_error
+            else:
+                script_error = ScriptError("Lubel", "Search", f"{e.__str__()}", vehicle)
+                print(script_error)
+                raise script_error
+        except Exception as e:
+            script_error = ScriptError("Lubel", "Search", f"{e.__str__()}", vehicle)
+            print(script_error)
+            raise script_error
+
+    def search_products(self, ticket, vehicle) -> None:
+        try:
+            response = requests.get(
+                f"https://api.dafitech.com/api/v2/Products/Recommendation/Model/{vehicle}",
+                headers={
+                    "accept": "application/problem+json",
+                    "authorization": f"Bearer {self.auth}",
+                    "Ticket": f"{ticket}",
+                }
+            )
+
+            response.raise_for_status()
+
+            response_body = response.json()
+            components = response_body["Components"]
+
+            if not components:
+                script_error = ScriptError("Lubel", "Products Search", "No products found", vehicle)
+                print(script_error)
+                raise script_error
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 401:
+                script_error = ScriptError("Lubel", "Products Search", "Unauthorized", vehicle)
+                print(script_error)
+                raise script_error
+            else:
+                script_error = ScriptError("Lubel", "Products Search", f"{e.__str__()}", vehicle)
+                print(script_error)
+                raise script_error
+        except Exception as e:
+            script_error = ScriptError("Lubel", "Products Search", f"{e.__str__()}", vehicle)
+            print(script_error)
+            raise script_error

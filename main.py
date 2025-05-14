@@ -3,18 +3,17 @@ from datetime import datetime
 import schedule
 import time
 
-from selenium import webdriver
-
 from entities.error import ScriptError
 from entities.message import Message
 from notification.discord import Discord
 from scripts.Lubel import Lubel
 from scripts.Lubrax import Lubrax
 from scripts.Castrol import Castrol
-from selenium.webdriver.firefox.options import Options
-
 from scripts.TotalEnergies import TotalEnergies
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 
 def main():
     print("Iniciando monitoramento...")
@@ -26,6 +25,15 @@ def main():
         schedule.run_pending()
         time.sleep(1)
 
+def load_variables():
+    try:
+        lubel_api_key = os.getenv("LUBEL_API_KEY")
+        if not lubel_api_key:
+            raise ValueError("LUBEL_API_KEY não encontrado nas variáveis de ambiente.")
+        return lubel_api_key
+    except Exception as e:
+        print(f"Erro ao carregar variáveis de ambiente: {e}")
+        raise
 
 def run_scripts():
     now = datetime.now()
@@ -33,22 +41,6 @@ def run_scripts():
 
     discord_instance = Discord(
         "https://discordapp.com/api/webhooks/1364673256631566510/V1RQwnSwAlyeZoKVn2YPW8kwII4ZlaeZRUHKexvFERn3-035lCOYM6mVqBstz5W6kDPX")
-
-    options = Options()
-
-    options.add_argument("--disable-notifications")
-    options.add_argument("--headless")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--window-size=1920,1080")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_argument("--disable-popup-content")
-    options.add_argument("--disable-popup-blocking")
-    options.add_argument(
-        "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
-
-    driver = webdriver.Firefox(options=options)
 
     errors = []
 
@@ -58,112 +50,24 @@ def run_scripts():
         "Honda Civic 2018 2.0"
     ]
 
-    try:
-        errors += run_lubrax_script(driver, scenarios)
-    except Exception as e:
-        error = ScriptError("Lubrax", "Desconhecido", f"Exception não identificada. Detalhes: {e}", "")
-        print(f"Erro durante o monitoramento do Lubrax. Detalhes: {e}")
-        errors.append(error)
+    lubel_api_key = load_variables()
 
-    try:
-        errors += run_total_energies_script(driver, scenarios)
-    except Exception as e:
-        error = ScriptError("TotalEnergies", "Desconhecido", f"Exception não identificada. Detalhes: {e}", "")
-        print(f"Erro durante o monitoramento do TotalEnergies. Detalhes: {e}")
-        errors.append(error)
+    lubel = Lubel(lubel_api_key)
 
-    try:
-        errors += run_castrol_script(driver, scenarios)
-    except Exception as e:
-        error = ScriptError("Castrol", "Desconhecido", f"Exception não identificada. Detalhes: {e}", "")
-        print(f"Erro durante o monitoramento do Castrol. Detalhes: {e}")
-        errors.append(error)
-
-    try:
-        errors += run_lubel_script(driver)
-    except Exception as e:
-        error = ScriptError("Lubel", "Desconhecido", f"Exception não identificada. Detalhes: {e}", "")
-        print(f"Erro durante o monitoramento do Lubel. Detalhes: {e}")
-        errors.append(error)
+    for scenario in scenarios:
+        try:
+            lubel.run(scenario)
+        except ScriptError as e:
+            errors.append(e)
+        except Exception as e:
+            script_error = ScriptError("Lubel", "Search", f"{e.__str__()}", "")
+            print(script_error)
+            errors.append(script_error)
 
     for error in errors:
-        message = Message(error)
-
-        try:
-            discord_instance.send(message)
-        except Exception as e:
-            print(f"Erro ao enviar notificação ao Discord. Detalhes: {e}")
-
-    driver.quit()
+        discord_instance.send(Message(error))
 
     print("Monitoramento finalizado com sucesso")
-
-
-def run_lubrax_script(driver, scenarios):
-    print("Iniciando busca no script Lubrax")
-    lubrax = Lubrax(driver)
-
-    errors = []
-
-    first_run = True
-
-    for scenario in scenarios:
-        error = lubrax.run(scenario, first_run)
-
-        first_run = False
-
-        if error:
-            errors.append(error)
-
-    return errors
-
-
-def run_total_energies_script(driver, scenarios):
-    print("Iniciando busca no script TotalEnergies")
-    total_energies = TotalEnergies(driver)
-
-    errors = []
-
-    for scenario in scenarios:
-        error = total_energies.run(scenario)
-
-        if error:
-            errors.append(error)
-
-    return errors
-
-
-def run_castrol_script(driver, scenarios):
-    print("Iniciando busca no script Castrol")
-    castrol = Castrol(driver)
-
-    errors = []
-
-    first_run = True
-
-    for scenario in scenarios:
-        error = castrol.run(scenario, first_run)
-
-        if error:
-            errors.append(error)
-
-        first_run = False
-
-    return errors
-
-
-def run_lubel_script(driver):
-    lubel = Lubel(driver)
-
-    errors = []
-
-    error = lubel.run()
-
-    if error:
-        errors.append(error)
-
-    return errors
-
 
 if __name__ == '__main__':
     main()
