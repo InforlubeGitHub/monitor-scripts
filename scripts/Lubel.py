@@ -1,60 +1,84 @@
-import time
-
-from selenium.common import TimeoutException
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+import requests
 
 from entities.error import ScriptError
 
 class Lubel:
-    def __init__(self, driver):
-        self.driver = driver
+    def __init__(self, api_key):
         self.retries = 10
+        self.api_key = api_key
+        self.auth = None
 
-    def run(self):
+    def run(self, vehicle: str) -> None:
         print("Iniciando busca no script Lubel")
-        self.driver.get("https://www.moura.com.br/produtos/lubel")
 
-        for attempt in range(self.retries):
-            try:
-                WebDriverWait(self.driver, 90).until(
-                    EC.presence_of_element_located((By.CLASS_NAME, "cc-message-container")))
-                consent_button = self.driver.find_element(By.XPATH, "/html/body/div[2]/div[2]/a[2]")
+        try:
+            self.login()
+            self.search(vehicle)
+        except ScriptError as e:
+            raise e
 
-                consent_button.click()
-                return None
-            except TimeoutException:
-                if attempt < self.retries:
-                    script_error = ScriptError("Lubel", "Cookie Dialog", "TimeoutException", "")
-                    print(script_error)
-                    return script_error
-                else:
-                    self.retries -= 1
 
-        self.retries = 10
+    def login(self) -> None:
+        try:
+            response = requests.get(
+                "https://api.dafitech.com/api/v2/Auth",
+                headers={
+                    "accept": "application/problem+json",
+                    "credentials": f"{self.api_key}",
+                }
+            )
 
-        for attempt in range(self.retries):
-            try:
-                know_oils_button = self.driver.find_element(By.CLASS_NAME, "chakra-button")
+            response.raise_for_status()
 
-                know_oils_button.click()
+            response_body = response.json()
 
-                catalog_pdf_button = self.driver.find_element(By.CLASS_NAME, "css-z8c6fa")
+            self.auth = response_body["Jwt"]
 
-                catalog_pdf_button.click()
+            print("Auth response: ", response_body["Jwt"])
+            return None
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 401:
+                script_error = ScriptError("Lubel", "Login", "Unauthorized", "")
+                print(script_error)
+                return script_error
+            else:
+                script_error = ScriptError("Lubel", "Login", f"{e.__str__()}", "")
+                print(script_error)
+                raise script_error
+        except Exception as e:
+            script_error = ScriptError("Lubel", "Login", f"{e.__str__()}", "")
+            print(script_error)
+            raise script_error
 
-                time.sleep(3)
+    def search(self, vehicle: str) -> None:
+        try:
+            response = requests.get(
+                f"https://api.dafitech.com/api/v2/Models?UsePartialWords=true&SpellCheck=true&SearchText={vehicle}&PageSize=10&CurrentPage=1&IsPaged=true",
+                headers={
+                    "accept": "application/problem+json",
+                    "authorization": f"Bearer {self.auth}",
+                },
+                params={
+                    "search": vehicle
+                }
+            )
 
-                print("Script para Lubel finalizada com sucesso")
+            response.raise_for_status()
 
-                return None
+            response_body = response.json()
 
-            except Exception as e:
-                if attempt < self.retries:
-                    script_error = ScriptError("Lubel", "Catalog PDF", f"Exception não identificada. Detalhes: {e}", "")
-                    print(script_error)
-                    return script_error
-                else:
-                    self.retries -= 1
-
+            print("Search response: ", response_body)
+            return None
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 401:
+                script_error = ScriptError("Lubel", "Search", "Unauthorized", vehicle)
+                print(script_error)
+                return script_error
+            else:
+                script_error = ScriptError("Lubel", "Search", f"{e.__str__()}", vehicle)
+                print(script_error)
+                raise script_error
+        except Exception as e:
+            script_error = ScriptError("Lubel", "Search", f"{e.__str__()}", vehicle)
+            print(script_error)
+            raise script_error
