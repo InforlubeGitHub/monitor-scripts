@@ -3,6 +3,7 @@ from datetime import datetime
 import schedule
 import time
 
+from entities.config import Config
 from entities.error import ScriptError
 from entities.message import Message
 from notification.discord import Discord
@@ -10,32 +11,23 @@ from scripts.Lubel import Lubel
 from scripts.Lubrax import Lubrax
 from scripts.Castrol import Castrol
 from scripts.TotalEnergies import TotalEnergies
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
 
 def main():
     print("Iniciando monitoramento...")
-    schedule.every(2).minutes.do(run_scripts)
 
-    run_scripts()
+    config = Config()
+    config.load()
+    config.show()
+
+    schedule.every(config.interval).minutes.do((lambda: run_scripts(config)))
+
+    run_scripts(config)
 
     while True:
         schedule.run_pending()
         time.sleep(1)
 
-def load_variables():
-    try:
-        lubel_api_key = os.getenv("LUBEL_API_KEY")
-        if not lubel_api_key:
-            raise ValueError("LUBEL_API_KEY não encontrado nas variáveis de ambiente.")
-        return lubel_api_key
-    except Exception as e:
-        print(f"Erro ao carregar variáveis de ambiente: {e}")
-        raise
-
-def run_scripts():
+def run_scripts(config: Config = None):
     now = datetime.now()
     print(f"Rodando monitoramento as {now}")
 
@@ -50,9 +42,7 @@ def run_scripts():
         "Honda Civic 2018 2.0"
     ]
 
-    lubel_api_key = load_variables()
-
-    lubel = Lubel(lubel_api_key)
+    lubel = Lubel(config.lubel_api_key)
 
     for scenario in scenarios:
         try:
