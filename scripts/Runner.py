@@ -1,15 +1,40 @@
 import requests
 
 from entities.error import ScriptError
+from entities.message import Message
+from notification.discord import Discord
+
 
 class Runner:
-    def __init__(self, service_name: str, api_key: str, api_url: str) -> None:
+    def __init__(self, service_name: str, api_key: str, api_url: str, discord_instance:Discord) -> None:
         self.service_name = service_name
         self.api_key = api_key
         self.api_url = api_url
         self.auth = None
+        self.discord_instance = discord_instance
 
-    def run(self, vehicle: str) -> None:
+    def run(self):
+        errors = []
+
+        scenarios = [
+            "Renault Duster 2020 2.0",
+            "Renault Fluence 2017",
+            "Honda Civic 2018 2.0"
+        ]
+        for scenario in scenarios:
+            try:
+                self.run_scenario(scenario)
+            except ScriptError as e:
+                errors.append(e)
+            except Exception as e:
+                script_error = ScriptError(self.service_name, "Search", f"{e.__str__()}", "")
+                print(script_error)
+                errors.append(script_error)
+
+        for error in errors:
+            self.discord_instance.send(Message(error))
+
+    def run_scenario(self, vehicle: str) -> None:
         print(f"Iniciando busca no script {self.service_name} para o veículo: ", vehicle)
 
         try:
