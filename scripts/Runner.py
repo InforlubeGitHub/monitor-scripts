@@ -2,14 +2,15 @@ import requests
 
 from entities.error import ScriptError
 
-class Lubel:
-    def __init__(self, api_key):
-        self.retries = 10
+class Runner:
+    def __init__(self, service_name: str, api_key: str, api_url: str) -> None:
+        self.service_name = service_name
         self.api_key = api_key
+        self.api_url = api_url
         self.auth = None
 
     def run(self, vehicle: str) -> None:
-        print("Iniciando busca no script Lubel para o veículo: ", vehicle)
+        print(f"Iniciando busca no script {self.service_name} para o veículo: ", vehicle)
 
         try:
             self.login()
@@ -22,7 +23,7 @@ class Lubel:
     def login(self) -> None:
         try:
             response = requests.get(
-                "https://api.dafitech.com/api/v2/Auth",
+                f"{self.api_url}/Auth",
                 headers={
                     "accept": "application/problem+json",
                     "credentials": f"{self.api_key}",
@@ -37,22 +38,22 @@ class Lubel:
             return None
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 401:
-                script_error = ScriptError("Lubel", "Login", "Unauthorized", "")
+                script_error = ScriptError(self.service_name, "Login", "Unauthorized", "")
                 print(script_error)
                 raise script_error
             else:
-                script_error = ScriptError("Lubel", "Login", f"{e.__str__()}", "")
+                script_error = ScriptError(self.service_name, "Login", f"{e.__str__()}", "")
                 print(script_error)
                 raise script_error
         except Exception as e:
-            script_error = ScriptError("Lubel", "Login", f"{e.__str__()}", "")
+            script_error = ScriptError(self.service_name, "Login", f"{e.__str__()}", "")
             print(script_error)
             raise script_error
 
     def search_model(self, vehicle: str) -> tuple[str, str] | None:
         try:
             response = requests.get(
-                f"https://api.dafitech.com/api/v2/Models?UsePartialWords=true&SpellCheck=true&SearchText={vehicle}&PageSize=10&CurrentPage=1&IsPaged=true",
+                f"{self.api_url}/Models?UsePartialWords=true&SpellCheck=true&SearchText={vehicle}&PageSize=10&CurrentPage=1&IsPaged=true",
                 headers={
                     "accept": "application/problem+json",
                     "authorization": f"Bearer {self.auth}",
@@ -74,22 +75,22 @@ class Lubel:
             return ticket, model_id
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 401:
-                script_error = ScriptError("Lubel", "Search", "Unauthorized", vehicle)
+                script_error = ScriptError(self.service_name, "Search", "Unauthorized", vehicle)
                 print(script_error)
                 raise script_error
             else:
-                script_error = ScriptError("Lubel", "Search", f"{e.__str__()}", vehicle)
+                script_error = ScriptError(self.service_name, "Search", f"{e.__str__()}", vehicle)
                 print(script_error)
                 raise script_error
         except Exception as e:
-            script_error = ScriptError("Lubel", "Search", f"{e.__str__()}", vehicle)
+            script_error = ScriptError(self.service_name, "Search", f"{e.__str__()}", vehicle)
             print(script_error)
             raise script_error
 
     def search_products(self, ticket, vehicle) -> None:
         try:
             response = requests.get(
-                f"https://api.dafitech.com/api/v2/Products/Recommendation/Model/{vehicle}",
+                f"{self.api_url}/Products/Recommendation/Model/{vehicle}",
                 headers={
                     "accept": "application/problem+json",
                     "authorization": f"Bearer {self.auth}",
@@ -103,19 +104,19 @@ class Lubel:
             components = response_body["Components"]
 
             if not components:
-                script_error = ScriptError("Lubel", "Products Search", "No products found", vehicle)
+                script_error = ScriptError(self.service_name, "Products Search", "No products found", vehicle)
                 print(script_error)
                 raise script_error
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 401:
-                script_error = ScriptError("Lubel", "Products Search", "Unauthorized", vehicle)
+                script_error = ScriptError(self.service_name, "Products Search", "Unauthorized", vehicle)
                 print(script_error)
                 raise script_error
             else:
-                script_error = ScriptError("Lubel", "Products Search", f"{e.__str__()}", vehicle)
+                script_error = ScriptError(self.service_name, "Products Search", f"{e.__str__()}", vehicle)
                 print(script_error)
                 raise script_error
         except Exception as e:
-            script_error = ScriptError("Lubel", "Products Search", f"{e.__str__()}", vehicle)
+            script_error = ScriptError(self.service_name, "Products Search", f"{e.__str__()}", vehicle)
             print(script_error)
             raise script_error
