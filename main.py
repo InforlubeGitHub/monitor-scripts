@@ -18,7 +18,7 @@ def main():
 
     runners = []
 
-    lubel = Runner("Lubel", config.mobil_api_key, config.lubel_api_url, discord_instance)
+    lubel = Runner("Lubel", config.lubel_api_key, config.lubel_api_url, discord_instance)
     castrol = Runner("Castrol", config.castrol_api_key, config.castrol_api_url, discord_instance)
     total_energies = Runner("TotalEnergies", config.totalenergies_api_key, config.totalenergies_api_url, discord_instance)
     mobil = Runner("Mobil", config.mobil_api_key, config.mobil_api_url, discord_instance)
