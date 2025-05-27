@@ -17,9 +17,10 @@ class Runner:
         errors = []
 
         scenarios = [
-            "Renault Duster 2020 2.0",
-            "Renault Fluence 2017",
-            "Honda Civic 2018 2.0"
+            "Fiat Uno 2010 1.0",
+            "Honda Civic 2018 2.0",
+            "Toyota Corolla 2020 2.0",
+            "Volkswagen Polo 2021 1.0",
         ]
         for scenario in scenarios:
             try:
