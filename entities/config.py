@@ -15,6 +15,7 @@ class Config:
 
         self.interval = None
         self.discord_webhook = None
+        self.monitor_lambda = None
 
     def load(self):
         try:
@@ -60,6 +61,10 @@ class Config:
             if not self.totalenergies_api_url:
                 raise ValueError("TOTALENERGIES_API_URL não encontrado nas variáveis de ambiente.")
 
+            self.monitor_lambda = os.getenv("MONITOR_LAMBDA_URL")
+            if not self.monitor_lambda:
+                raise ValueError("MONITOR_LAMBDA_URL não encontrado nas variáveis de ambiente.")
+
         except Exception as e:
             print(f"Erro ao carregar variáveis de ambiente: {e}")
             raise
@@ -78,3 +83,4 @@ class Config:
         print(f"MOBIL_API_URL: {self.mobil_api_url}")
         print(f"CASTROL_API_URL: {self.castrol_api_url}")
         print(f"TOTALENERGIES_API_URL: {self.totalenergies_api_url}")
+        print(f"MONITOR_LAMBDA_URL: {self.monitor_lambda}")
