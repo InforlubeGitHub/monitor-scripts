@@ -3,15 +3,17 @@ import requests
 from entities.error import ScriptError
 from entities.message import Message
 from notification.discord import Discord
+from notification.lambda_notification import LambdaNotification
 
 
 class Runner:
-    def __init__(self, service_name: str, api_key: str, api_url: str, discord_instance:Discord) -> None:
+    def __init__(self, service_name: str, api_key: str, api_url: str, discord_instance: Discord, lambda_instance: LambdaNotification) -> None:
         self.service_name = service_name
         self.api_key = api_key
         self.api_url = api_url
         self.auth = None
         self.discord_instance = discord_instance
+        self.lambda_instance = lambda_instance
 
     def run(self):
         errors = []
@@ -22,6 +24,7 @@ class Runner:
             "Toyota Corolla 2020 2.0",
             "Volkswagen Polo 2021 1.0",
         ]
+
         for scenario in scenarios:
             try:
                 self.run_scenario(scenario)
@@ -34,6 +37,7 @@ class Runner:
 
         for error in errors:
             self.discord_instance.send(Message(error))
+            self.lambda_instance.send(Message(error))
 
     def run_scenario(self, vehicle: str) -> None:
         print(f"Iniciando busca no script {self.service_name} para o veículo: ", vehicle)
